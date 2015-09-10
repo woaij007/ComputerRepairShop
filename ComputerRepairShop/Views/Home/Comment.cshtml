@@ -1,0 +1,92 @@
+﻿@model ComputerRepairShop.Models.Comment
+
+@{
+    ViewBag.Title = "Comment";
+}
+
+<h2>Comment</h2>
+
+
+ <div class="content">
+    <div class="float-left">
+      <ul id="update-parts" data-bind="foreach: comments">
+        <li>
+          <div>
+            <div class="item">Comment ID</div> <span data-bind="text: $data.Id"></span>
+          </div>
+          <div>
+            <div class="item">Question</div>
+            <input type="text" data-bind="value: $data.Question" />
+          </div>
+          <div>
+            <div class="item">Answer</div>
+            <input type="text" data-bind="value: $data.Answer" />
+          </div>
+          <div>
+            <div class="item">User Name</div>
+            <input type="text" data-bind="value: $data.UserName" />
+          </div>
+          <div>
+            <div class="item">Email</div>
+            <input type="text" data-bind="value: $data.Email" />
+          </div>
+          <div>
+            <input type="button" value="Update" data-bind="click: $root.update" />
+            <input type="button" value="Delete Comment" data-bind="click: $root.remove" />
+          </div>
+        </li>
+       </ul>
+      <input type="button" value="Export Questions" />
+    </div>
+
+    <div class="float-right">
+      <h2>Add New Comment</h2>
+      <form id="parts" data-bind="submit: create">
+        @Html.ValidationSummary(true)
+        <fieldset>
+          @Html.EditorForModel()
+          <p>
+            <input type="submit" value="Save" />
+          </p>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+
+@section Scripts {
+  @Scripts.Render("~/bundles/jqueryval")
+  <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")"></script>
+  <script type="text/javascript">
+      function CommentsViewModel() {
+          var self = this;
+          self.comments = ko.observableArray();
+
+          var baseUri = '@ViewBag.ApiUrl';
+
+          self.create = function (formElement) {
+              // If valid, post the serialized form data to the web api
+              $(formElement).validate();
+              if ($(formElement).valid()) {
+                  $.post(baseUri, $(formElement).serialize(), null, "json")
+                      .done(function (o) { self.comments.push(o); });
+              }
+          }
+
+          self.update = function (comment) {
+              $.ajax({ type: "PUT", url: baseUri + '/' + comment.Id, data: comment });
+          }
+
+          self.remove = function (comment) {
+              // First remove from the server, then from the UI
+              $.ajax({ type: "DELETE", url: baseUri + '/' + comment.Id })
+                  .done(function () { self.comments.remove(comment); });
+          }
+
+          $.getJSON(baseUri, self.comments);
+      }
+
+      $(document).ready(function () {
+          ko.applyBindings(new CommentsViewModel());
+      })
+  </script>
+}

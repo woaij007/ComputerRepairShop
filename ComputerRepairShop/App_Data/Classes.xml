@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<classes>
+  <class>
+    <title>March's Free Class about Office</title>
+    <time>March/21/2014 7:00pm</time>
+    <place>Syracuse University Life Science Building 4-201</place>
+    <description>Teach you how to use Office tools.</description>
+  </class>
+  <class>
+    <title>April's Free Class about PhotoShop</title>
+    <time>April/21/2014 7:00pm</time>
+    <place>Syracuse University Life Science Building 4-201</place>
+    <description>Teach you how to use PhotoShop tools.</description>
+  </class>
+  <class>
+    <title>May's Free Class about Linux</title>
+    <time>May/21/2014 7:00pm</time>
+    <place>Syracuse University Life Science Building 4-201</place>
+    <description>Teach you how to use Linux system.</description>
+  </class>
+  <class>
+    <title>June's Free Class about Google service</title>
+    <time>June/21/2014 7:00pm</time>
+    <place>Syracuse University Life Science Building 4-201</place>
+    <description>Teach you how to use Google service.</description>
+  </class>
+</classes>

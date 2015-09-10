@@ -1,0 +1,13 @@
+﻿@model ComputerRepairShop.Models.AreaModel
+
+@{
+  ViewBag.Title = "Pick up partial";
+}
+
+<h2>Choose your zipcode to see avalible pickup or deliver</h2>
+@using (Html.BeginForm())
+{
+  <div>
+    @Html.DropDownListFor(model => model.Zipcode, Model.ZipcodeList)
+  </div>
+}

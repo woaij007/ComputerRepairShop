@@ -1,0 +1,109 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+/* styles for validation helpers */
+.field-validation-error {
+    color: #b94a48;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+input.input-validation-error {
+    border: 1px solid #b94a48;
+}
+
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+
+.validation-summary-errors {
+    color: #b94a48;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+.content {
+    clear: both;
+    width: 90%;
+}
+
+.float-left{
+  float:left;
+  width: 400px;
+}
+
+.float-right{
+  float:right;
+  width: 600px;
+}
+
+li {
+    list-style-type: none;
+}
+        
+#parts li {
+    width: 300px;
+    background-color: #aaf;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff0;
+    margin: 0 0 5px 0;
+    padding: 0 5px 0 5px;
+}
+        
+.price  {
+    float: right;
+    color: #c00;
+    font-size: 0.75em;
+}
+        
+.details thead td {
+    background-color: #CCCCCC;
+    color: #333333;
+}
+
+.details td {
+	padding: 6px;
+}
+        
+.details td.qty {
+	text-align: center;
+}       
+        
+#cart a {
+	color: Blue;
+	font-size: .75em;
+} 
+        
+#update-parts li { 
+    padding: 5px; 
+    color: #666;
+    border-style: dashed;
+    border-width: 2px;
+    border-color: #666;
+}
+
+#update-parts li .item {
+	width: 120px;
+	display: inline-block;
+	text-align: right;
+}      

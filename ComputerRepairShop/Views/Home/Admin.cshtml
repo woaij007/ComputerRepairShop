@@ -1,0 +1,92 @@
+﻿@model ComputerRepairShop.Models.Part
+
+@{
+    ViewBag.Title = "Admin";
+}
+
+<h2>Admin Page</h2>
+
+<div class="content">
+  <div class="float-left">
+    <ul id="update-parts" data-bind="foreach: parts">
+      <li>
+        <div>
+          <div class="item">Part ID</div> <span data-bind="text: $data.Id"></span>
+        </div>
+        <div>
+          <div class="item">Name</div>
+          <input type="text" data-bind="value: $data.Name" />
+        </div>
+        <div>
+          <div class="item">Price ($)</div>
+          <input type="text" data-bind="value: $data.Price" />
+        </div>
+        <div>
+          <div class="item">Amount</div>
+          <input type="text" data-bind="value: $data.Amount" />
+        </div>
+        <div>
+          <div class="item">Description</div>
+          <input type="text" data-bind="value: $data.Description" />
+        </div>
+        <div>
+          <input type="button" value="Update" data-bind="click: $root.update" />
+          <input type="button" value="Delete Item" data-bind="click: $root.remove" />
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="float-right">
+    <h2>Add New Part</h2>
+    <form id="addPart" data-bind="submit: create">
+      @Html.ValidationSummary(true)
+      <fieldset>
+        @Html.EditorForModel()
+        <p>
+          <input type="submit" value="Save" />
+        </p>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  @Scripts.Render("~/bundles/jqueryval")
+  <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")">
+
+  </script>
+  <script type="text/javascript">
+  function PartsViewModel() {
+    var self = this;
+    self.parts = ko.observableArray();
+
+    var baseUri = '@ViewBag.ApiUrl';
+
+    self.create = function (formElement) {
+      // If valid, post the serialized form data to the web api
+      $(formElement).validate();
+      if ($(formElement).valid()) {
+        $.post(baseUri, $(formElement).serialize(), null, "json")
+            .done(function (o) { self.parts.push(o); });
+      }
+    }
+
+    self.update = function (part) {
+      $.ajax({ type: "PUT", url: baseUri + '/' + part.Id, data: part });
+    }
+
+    self.remove = function (part) {
+      // First remove from the server, then from the UI
+      $.ajax({ type: "DELETE", url: baseUri + '/' + part.Id })
+          .done(function () { self.parts.remove(part); });
+    }
+
+    $.getJSON(baseUri, self.parts);
+  }
+
+  $(document).ready(function () {
+    ko.applyBindings(new PartsViewModel());
+  })
+  </script>
+}

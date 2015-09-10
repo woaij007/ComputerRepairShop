@@ -1,0 +1,44 @@
+﻿@model IEnumerable<ComputerRepairShop.Models.Class>
+
+@{
+    ViewBag.Title = "Class";
+}
+
+<h2>Class</h2>
+
+<p>
+  <table class="table indent">
+    <tr>
+      <th>
+        @Html.DisplayNameFor(model => model.Title)
+      </th>
+      <th>
+        @Html.DisplayNameFor(model => model.Time)
+      </th>
+      <th>
+        @Html.DisplayNameFor(model => model.Place)
+      </th>
+      <th>
+        @Html.DisplayNameFor(model => model.Description)
+      </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+      <tr>
+        <td>
+          @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+          @Html.DisplayFor(modelItem => item.Time)
+        </td>
+        <td>
+          @Html.DisplayFor(modelItem => item.Place)
+        </td>
+        <td>
+          @Html.DisplayFor(modelItem => item.Description)
+        </td>
+      </tr>
+    }
+  </table>
+</p>

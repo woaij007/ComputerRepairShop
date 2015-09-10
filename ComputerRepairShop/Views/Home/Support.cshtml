@@ -1,0 +1,82 @@
+﻿@model ComputerRepairShop.Models.Comment
+
+@{
+  ViewBag.Title = "Support";
+}
+
+<h2>Support</h2>
+
+
+<div class="content">
+  <div class="float-left">
+    <ul id="update-parts" data-bind="foreach: comments">
+      <li>
+        <div>
+          <div class="item">Comment ID</div> <span data-bind="text: $data.Id"></span>
+        </div>
+        <div>
+          <div class="item">Question</div>
+          <span data-bind="text: $data.Question"></span>
+        </div>
+        <div>
+          <div class="item">Answer</div>
+          <span data-bind="text: $data.Answer"></span>
+        </div>
+        <div>
+          <div class="item">User Name</div>
+          <span data-bind="text: $data.UserName"></span>
+        </div>
+        <div>
+          <div class="item">Email</div>
+          <span data-bind="text: $data.Email"></span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="float-right">
+    <h2>Add New Comment</h2>
+    <form id="parts" data-bind="submit: create">
+      @Html.ValidationSummary(true)
+      <fieldset>
+        @Html.EditorForModel()
+        <p>
+          <input type="submit" value="Save" />
+        </p>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  @Scripts.Render("~/bundles/jqueryval")
+  <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")"></script>
+  <script type="text/javascript">
+      function CommentsViewModel() {
+          var self = this;
+          self.comments = ko.observableArray();
+
+          var baseUri = '/api/comment';
+
+          self.create = function (formElement) {
+              // If valid, post the serialized form data to the web api
+              $(formElement).validate();
+              if ($(formElement).valid()) {
+                  $.post(baseUri, $(formElement).serialize(), null, "json")
+                      .done(function (o) { self.comments.push(o); });
+              }
+          }
+
+          $.getJSON(baseUri, self.comments);
+      }
+
+      $(document).ready(function () {
+          ko.applyBindings(new CommentsViewModel());
+      })
+  </script>
+}
+
+@{
+  Html.RenderPartial("_AreaPickup",new ComputerRepairShop.Models.AreaModel());
+}
+

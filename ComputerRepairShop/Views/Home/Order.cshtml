@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "Order page";
+}
+
+<div class="content">
+  <!-- List of parts -->
+  <div class="float-left">
+    <h1>Parts:</h1>
+    <ul id="parts" data-bind="foreach: parts">
+      <li>
+        <div>
+          <span data-bind="text: Name"></span>
+          left:<span data-bind="text: $data.Amount()"></span>
+          <span class="price" data-bind="text: '$' + Price"></span>
+        </div>
+        <div data-bind="if: $parent.loggedIn">
+          <button data-bind="click: addItemToCart">Add to Order</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Cart -->
+<div id="cart" class="float-right" data-bind="visible: cart().length > 0">
+  <h1>Your Cart:</h1>
+  <table class="details ui-widget-content">
+    <thead>
+      <tr><td>Item</td><td>Price</td><td>Quantity</td><td></td></tr>
+    </thead>
+    <tbody data-bind="foreach: cart">
+      <tr>
+        <td><span data-bind="text: $data.Name"></span></td>
+        <td>$<span data-bind="text: $data.Price"></span></td>
+        <td class="qty"><span data-bind="text: $data.Quantity()"></span></td>
+        <td><a href="#" data-bind="click: removeFromCart">Remove</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <input type="button" data-bind="click: createOrder" value="Create Order" />
+</div>
+
+<div id="orders-area" class="content">
+  <!-- List of orders -->
+  <div class="float-left">
+    <h1>Your Orders</h1>
+    <ul id="orders" data-bind="foreach: orders">
+      <li class="ui-widget-content">
+        <a href="#" data-bind="click: $root.getDetails">
+          Order # <span data-bind="text: $data.Id"></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Order Details -->
+  <div id="order-details" class="float-right" data-bind="if: details()">
+    <h2>Order #<span data-bind="text: details().Id"></span></h2>
+    <table class="details ui-widget-content">
+      <thead>
+        <tr><td>Item</td><td>Price</td><td>Quantity</td><td>Subtotal</td></tr>
+      </thead>
+      <tbody data-bind="foreach: details().items">
+        <tr>
+          <td><span data-bind="text: $data.Part"></span></td>
+          <td><span data-bind="text: $data.Price"></span></td>
+          <td><span data-bind="text: $data.Quantity"></span></td>
+          <td>
+            <span data-bind="text: ($data.Price * $data.Quantity).toFixed(2)"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Total: <span data-bind="text: details().total"></span></p>
+  </div>
+</div>
+
+@section Scripts {
+  <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")"></script>
+  <script type="text/javascript">
+
+    function AppViewModel() {
+      var self = this;
+      self.loggedIn = @(Request.IsAuthenticated ? "true" : "false");
+      self.parts = ko.observableArray();
+      self.cart = ko.observableArray();
+      self.orders = ko.observableArray();
+      self.details = ko.observable();
+
+      function PartViewModel(root, part) {
+        var self = this;
+        self.PartId = part.Id;
+        self.Name = part.Name;
+        self.Price = part.Price;
+        self.Amount = ko.observable(part.Amount);
+        self.Description = part.Description;
+        self.Quantity = ko.observable(0);
+
+        self.addItemToCart = function () {
+          var amt = self.Amount();
+          if(amt > 0)
+          {
+            var qty = self.Quantity();
+            if (qty == 0) {
+              root.cart.push(self);
+            }
+            self.Quantity(qty + 1);
+            self.Amount(amt - 1);
+          }
+        };
+
+        self.removeFromCart = function () {
+          var qty = self.Quantity();
+          self.Quantity(qty - 1);
+          if (qty == 1) {
+            root.cart.remove(self);
+          }
+          var amt = self.Amount();
+          self.Amount(amt + 1);
+        };
+      }
+
+      function OrderDetailsViewModel(order) {
+        var self = this;
+        self.items = ko.observableArray();
+        self.Id = order.Id;
+
+        self.total = ko.computed(function () {
+          var sum = 0;
+          $.each(self.items(), function (index, item) {
+            sum += item.Price * item.Quantity;
+          });
+          return '$' + sum.toFixed(2);
+        });
+
+        $.getJSON("/api/orders/" + order.Id, function (order) {
+          $.each(order.Details, function (index, item) {
+            self.items.push(item);
+          })
+        });
+      };
+
+      self.resetCart = function() {
+        var items = self.cart.removeAll();
+        $.each(items, function (index, part) {
+          part.Quantity(0);
+        });
+      }
+
+      self.getDetails = function (order) {
+        self.details(new OrderDetailsViewModel(order));
+      }
+
+      self.createOrder = function () {
+        var jqxhr = $.ajax({
+          type: 'POST',
+          url: "/api/orders",
+          contentType: 'application/json; charset=utf-8',
+          data: ko.toJSON({ Details: self.cart }),
+          dataType: "json",
+          success: function (newOrder) {
+            self.resetCart();
+            self.orders.push(newOrder);
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            self.errorMessage(errorThrown);
+          }
+        });
+      };
+
+      $.getJSON("/api/parts", function (parts) {
+        $.each(parts, function (index, part) {
+          self.parts.push(new PartViewModel(self, part));
+        })
+      });
+
+      $.getJSON("/api/orders", self.orders);
+    };
+
+    $(document).ready(function () {
+        ko.applyBindings(new AppViewModel());
+    });
+
+  </script>
+}

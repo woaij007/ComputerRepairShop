@@ -1,0 +1,129 @@
+﻿@model ComputerRepairShop.Models.Part
+
+@{
+    ViewBag.Title = "Manage";
+}
+
+<h2>Manage Inventory Page</h2>
+
+<div class="content">
+  <div style="float:left; width:350px;">
+    <ul id="update-parts" data-bind="foreach: parts">
+      <li>
+        <div>
+          <div class="item">Part ID</div> <span data-bind="text: $data.Id"></span>
+        </div>
+        <div>
+          <div class="item">Name</div> <span data-bind="text: $data.Name"></span>
+        </div>
+        <div>
+          <div class="item">Price ($)</div><span data-bind="text: $data.Price"></span>
+        </div>
+        <div>
+          <div class="item">Amount</div>
+          <input type="text" data-bind="value: $data.Amount" />
+        </div>
+        <div>
+          <div class="item">Description</div><span data-bind="text: $data.Description"></span>
+        </div>
+        <div>
+          <input type="button" value="Update" data-bind="click: $root.update" />
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div style="float:right; width:600px;">
+    <!-- List of orders -->
+    <div style="float:left; width:250px;">
+      <h1>All the Orders:</h1>
+      <ul id="orders" data-bind="foreach: orders">
+        <li class="ui-widget-content">
+          <a href="#" data-bind="click: $root.getDetails">
+            Order # <span data-bind="text: $data.Id"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Order Details -->
+    <div id="order-details" class="float-right" data-bind="if: details()">
+      <h2>Order #<span data-bind="text: details().Id"></span></h2>
+      <table class="details ui-widget-content">
+        <thead>
+          <tr><td>Item</td><td>Price</td><td>Quantity</td><td>Subtotal</td></tr>
+        </thead>
+        <tbody data-bind="foreach: details().items">
+          <tr>
+            <td><span data-bind="text: $data.Part"></span></td>
+            <td><span data-bind="text: $data.Price"></span></td>
+            <td><span data-bind="text: $data.Quantity"></span></td>
+            <td>
+              <span data-bind="text: ($data.Price * $data.Quantity).toFixed(2)"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Total: <span data-bind="text: details().total"></span></p>
+      <input type="button" value="Bill The Order" />
+    </div>
+  </div>
+</div>
+
+
+    @section Scripts {
+      @Scripts.Render("~/bundles/jqueryval")
+      <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")">
+
+      </script>
+      <script type="text/javascript">
+
+        function AppViewModel() {
+          var self = this;
+          self.parts = ko.observableArray();
+          self.orders = ko.observableArray();
+          self.details = ko.observable();
+
+          function PartsViewModel() {
+            var self = this;
+
+            self.update = function (part) {
+              $.ajax({ type: "PUT", url: "/api/admin" + '/' + part.Id, data: part });
+            }
+          }
+
+          function OrderDetailsViewModel(order) {
+            var self = this;
+            self.items = ko.observableArray();
+            self.Id = order.Id;
+
+            self.total = ko.computed(function () {
+              var sum = 0;
+              $.each(self.items(), function (index, item) {
+                sum += item.Price * item.Quantity;
+              });
+              return '$' + sum.toFixed(2);
+            });
+
+            $.getJSON("/api/allorders/" + order.Id, function (order) {
+              $.each(order.Details, function (index, item) {
+                self.items.push(item);
+              })
+            });
+          };
+
+          self.getDetails = function (order) {
+            self.details(new OrderDetailsViewModel(order));
+          }
+          $.getJSON("/api/parts/", self.parts);
+          $.getJSON("/api/allorders", self.orders);
+        }
+
+          $(document).ready(function () {
+            ko.applyBindings(new AppViewModel());
+          })
+        
+      </script>
+    }
+
+
+
